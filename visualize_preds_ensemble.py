@@ -104,22 +104,22 @@ def evaluate_and_plot_ensemble(model_dir, data_path, num_plots=5, save_dir="ense
     test_df = dataset.iloc[test_split_idx:].copy()
     
     val_split_idx = int(len(dev_df) * (1 - args.test_ratio))
-    train_df = dev_df.iloc[:val_split_idx].copy()
     val_df = dev_df.iloc[val_split_idx:].copy()
     
     feature_cols = list(set(args.lookback_cols + args.horizon_cols))
+    
     preprocessor = Preprocessor(feature_cols=feature_cols, target_col=args.target_col, fold_idx=0)
+    # Načteme scalery přímo ze složky, kde jsou i modely (např. ensemble_models)
+    preprocessor.load_scalers(save_dir=model_dir) 
     
-    _, val_scaled = preprocessor.process_fold(train_df=train_df, val_df=val_df)
-    
-    test_scaled = test_df.copy()
-    if preprocessor.cols_to_scale:
-        test_scaled[preprocessor.cols_to_scale] = preprocessor.feature_scaler.transform(test_df[preprocessor.cols_to_scale])
-    test_scaled[[args.target_col]] = preprocessor.target_scaler.transform(test_df[[args.target_col]])
+    # 4. Transformace dat na jeden řádek pomocí naší nové metody
+    val_scaled = preprocessor.transform(val_df, include_target=True)
+    test_scaled = preprocessor.transform(test_df, include_target=True)
     
     target_mean = preprocessor.target_scaler.mean_[0]
     target_std = preprocessor.target_scaler.scale_[0]
 
+    # 5. Vytvoření Datasetů a DataLoaderů (zůstává beze změny)
     val_dataset = Dataset(data=val_scaled, lookback=args.lookback, horizon=args.horizon, 
                           lookback_cols=args.lookback_cols, horizon_cols=args.horizon_cols, target_col=args.target_col)
     test_dataset = Dataset(data=test_scaled, lookback=args.lookback, horizon=args.horizon, 

@@ -41,3 +41,32 @@ class Preprocessor:
         joblib.dump(self.target_scaler, f"{save_dir}/target_scaler_fold_{self.fold_idx}.pkl")
         
         joblib.dump(self.cols_to_scale, f"{save_dir}/scaled_features_list_fold_{self.fold_idx}.pkl")
+    
+    def load_scalers(self, save_dir: str = "checkpoints/scalers"):
+        """Loads the fitted scalers and metadata from disk to restore the preprocessor state."""
+        feature_scaler_path = f"{save_dir}/feature_scaler_fold_{self.fold_idx}.pkl"
+        target_scaler_path = f"{save_dir}/target_scaler_fold_{self.fold_idx}.pkl"
+        features_list_path = f"{save_dir}/scaled_features_list_fold_{self.fold_idx}.pkl"
+
+        if not (os.path.exists(feature_scaler_path) and os.path.exists(target_scaler_path)):
+            raise FileNotFoundError(f"Nebyly nalezeny soubory scalerů pro fold {self.fold_idx} ve složce {save_dir}!")
+
+        self.feature_scaler = joblib.load(feature_scaler_path)
+        self.target_scaler = joblib.load(target_scaler_path)
+        self.cols_to_scale = joblib.load(features_list_path)
+        print(f"Scalery pro fold {self.fold_idx} byly úspěšně načteny z disku.")
+    
+    def transform(self, df: pd.DataFrame, include_target: bool = True) -> pd.DataFrame:
+        """
+        Transforms raw input data using already fitted scalers.
+        Safe for test sets and real-time production inference.
+        """
+        df_scaled = df.copy()
+
+        if self.cols_to_scale:
+            df_scaled[self.cols_to_scale] = self.feature_scaler.transform(df[self.cols_to_scale])
+            
+        if include_target and self.target_col in df.columns:
+            df_scaled[[self.target_col]] = self.target_scaler.transform(df[[self.target_col]])
+
+        return df_scaled
