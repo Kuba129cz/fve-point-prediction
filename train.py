@@ -233,12 +233,12 @@ def run_cross_validation(args, model, df_splits, writer, device):
                 print(f"    Real Error (All) : Train {t_metrics['real_mae']:.2f} ({t_metrics['mae_pct']:.2f}%) | Val {v_metrics['real_mae']:.2f} ({v_metrics['mae_pct']:.2f}%)")
                 print(f"    Real Error (P>0) : Train {t_metrics['real_active_mae']:.2f} ({t_metrics['active_mae_pct']:.2f}%) | Val {v_metrics['real_active_mae']:.2f} ({v_metrics['active_mae_pct']:.2f}%)")
                 if patience_counter > 0:
-                    print(f"    [Early Stopping: {patience_counter}/{patience} epoch bez zlepšení]")
+                    print(f"    [Early Stopping: {patience_counter}/{patience} epochs without improvement]")
             
             global_epoch += 1
             
             if patience_counter >= patience:
-                print(f"\n[!] Stopping training the current fold. Validation error has not improved. {patience} epoch v řadě.")
+                print(f"\n[!] Stopping training the current fold. Validation error has not improved. {patience} epochs in rows.")
                 break 
             
         print(f"-> Fold {fold_idx + 1} completed. Final Val Real Error: {v_metrics['real_mae']:.2f}")
@@ -292,6 +292,7 @@ def main(args: argparse.Namespace) -> None:
     model = model_attention.Model(args=args).to(device)
 
     best_state, final_preprocessor, global_epoch = run_cross_validation(args, model, df_splits, writer, device)
+    final_preprocessor.save_scalers()
 
     if best_state is not None:
         model.load_state_dict(best_state)

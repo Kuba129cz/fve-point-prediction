@@ -101,7 +101,7 @@ python visualize_preds_ensemble.py
 ### Example prediction (ensemble vs ground truth)
 
 <p align="center">
-  <img src="ensemble_plots/ensemble_comparison_1176.png" width="900">
+  <img src="ensemble_sequence_plots/seq_059_2025-03-18.png" width="900">
 </p>
 
 ## Future Work
