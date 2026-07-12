@@ -1,14 +1,16 @@
 import pandas as pd
 
 class Splitter:
-    """Manages time-series cross-validation strategies (Simple, Rolling, Expanding)
+    """
+    Manages time-series cross-validation strategies (Simple, Rolling, Expanding)
     and returns raw pandas DataFrame splits (train_df, val_df).
     """
     def __init__(self, data: pd.DataFrame):
         self.data = data
 
     def get_splits(self, strategy: str, **kwargs) -> list[tuple[pd.DataFrame, pd.DataFrame]]:
-        """Generates pairs of (train_df, val_df) based on the chosen strategy.
+        """
+        Generates pairs of (train_df, val_df) based on the chosen strategy.
         
         Args:
             strategy (str): 'simple', 'expanding', or 'rolling'

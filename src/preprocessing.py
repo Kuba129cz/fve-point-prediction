@@ -9,7 +9,6 @@ class Preprocessor:
     """
     Handles feature and target scaling for a single validation fold to prevent data leakage.
     """
-    
     def __init__(self, lookback_cols: list[str], horizon_cols: list[str], target_col: str, fold_idx: int = 0):
         """
         Initializes the Preprocessor with columns to be scaled and separate scalers.
@@ -32,6 +31,25 @@ class Preprocessor:
         self.horizon_scaler = StandardScaler()
         self.target_scaler = StandardScaler()
 
+    @property
+    def target_std(self):
+        """
+        Returns the scaling factor (standard deviation) for the target.
+        """
+        if not hasattr(self.target_scaler, "scale_"):
+            raise ValueError("Scaler has not been fitted yet. Run process_fold first.")
+        return self.target_scaler.scale_[0]
+
+    @property
+    def scaled_zero(self):
+        """
+        Returns the value of 0.0 in the target variable space mapped to the scaled space.
+        """
+        if not hasattr(self.target_scaler, "mean_"):
+            raise ValueError("Scaler has not been fitted yet. Run process_fold first.")
+        # Z-score: (x - mean) / std
+        return (0.0 - self.target_scaler.mean_[0]) / self.target_scaler.scale_[0]
+    
     def process_fold(self, train_df: pd.DataFrame, val_df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
         """
         Fits scalers on training data and transforms both training and validation sets.
@@ -136,7 +154,7 @@ class Preprocessor:
         Inverse transforms scaled target predictions back to original physical units.
 
         Args:
-            y_scaled: Predictions as numpy array or tensor with shape (batch, seq, target).
+            y_scaled: Predictions as numpy array with shape (batch, seq, target).
 
         Returns:
             Inverse transformed data in the original input shape.
