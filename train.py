@@ -28,9 +28,9 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument('--patience', type=int, default=6)
     
     # --- Paths and Names ---
-    parser.add_argument("--exp_name", default="openmeteo_15min_train_expand_wind", type=str)
-    parser.add_argument("--model_name", default="openmeteo_15min_train_expand_wind", type=str)
-    parser.add_argument("--dataset_path", default="data/openmeteo_15min_train_expand_wind.csv", type=str)
+    parser.add_argument("--exp_name", default="aba", type=str)
+    parser.add_argument("--model_name", default="aba", type=str)
+    parser.add_argument("--dataset_path", default="data/aba_train.csv", type=str)
     
     # --- Model Architecture ---
     parser.add_argument("--past_hidden_size", default=16, type=int)
@@ -63,18 +63,18 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--lookback_cols", nargs="+", 
         default=[
             "energy", "sin_hour", "cos_hour", "sin_day_of_year", "cos_day_of_year",
-            "shortwave_radiation_0", "shortwave_radiation_15", "shortwave_radiation_30", "shortwave_radiation_45",
-            "diffuse_radiation_0", "diffuse_radiation_15", "diffuse_radiation_30", "diffuse_radiation_45",
-            "cloud_cover", 'temperature_2m', 'relative_humidity_2m_0', 'wind_u', 'wind_v'
+            'irradiance_0', 'irradiance_15', 'irradiance_30', 'irradiance_45',
+            'diffuse_radiation_0', 'diffuse_radiation_15', 'diffuse_radiation_30', 'diffuse_radiation_45',
+            'cloud_total', 'temperature', 'humidity', 'wind_u', 'wind_v',
         ]
     )
     
     parser.add_argument("--horizon_cols", nargs="+", 
         default=[
             "sin_hour", "cos_hour", "sin_day_of_year", "cos_day_of_year",
-            "shortwave_radiation_0", "shortwave_radiation_15", "shortwave_radiation_30", "shortwave_radiation_45",
-            "diffuse_radiation_0", "diffuse_radiation_15", "diffuse_radiation_30", "diffuse_radiation_45",
-            'temperature_2m', 'cloud_cover', 'relative_humidity_2m_0', 'wind_u', 'wind_v'
+            'irradiance_0', 'irradiance_15', 'irradiance_30', 'irradiance_45',
+            'diffuse_radiation_0', 'diffuse_radiation_15', 'diffuse_radiation_30', 'diffuse_radiation_45',
+            'temperature', 'cloud_total', 'humidity', 'wind_u', 'wind_v'
         ]
     )
     return parser
